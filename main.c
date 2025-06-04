@@ -5,6 +5,7 @@ typedef struct {
     GtkWidget *install_entry;
     GtkWidget *remove_entry;
     GtkWidget *output_view;
+    char *model_path;
 } AppWidgets;
 
 static void append_text(GtkTextView *view, const char *text) {
@@ -55,12 +56,24 @@ static void apply_actions(GtkButton *button, gpointer data) {
     }
 }
 
-static void file_selected(GtkFileChooserButton *button, gpointer user_data) {
+static void file_selected(GtkFileChooserButton *button, gpointer data) {
+    AppWidgets *widgets = (AppWidgets *)data;
     char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(button));
     if (filename) {
+        if (widgets->model_path) {
+            g_free(widgets->model_path);
+        }
+        widgets->model_path = filename; /* keep path for later use */
         g_print("Selected model: %s\n", filename);
-        /* Here the chosen model could be executed inside Docker */
-        g_free(filename);
+    }
+}
+
+static void run_model(GtkButton *button, gpointer data) {
+    AppWidgets *widgets = (AppWidgets *)data;
+    if (widgets->model_path) {
+        run_command(widgets->model_path, GTK_TEXT_VIEW(widgets->output_view));
+    } else {
+        append_text(GTK_TEXT_VIEW(widgets->output_view), "No model selected\n");
     }
 }
 
@@ -68,6 +81,7 @@ static void activate(GtkApplication* app, gpointer user_data) {
     GtkWidget *window;
     GtkWidget *vbox;
     GtkWidget *file_button;
+    GtkWidget *run_model_btn;
     GtkWidget *install_entry;
     GtkWidget *remove_entry;
     GtkWidget *output_view;
@@ -82,8 +96,12 @@ static void activate(GtkApplication* app, gpointer user_data) {
     gtk_container_add(GTK_CONTAINER(window), vbox);
 
     file_button = gtk_file_chooser_button_new("Select AI model", GTK_FILE_CHOOSER_ACTION_OPEN);
-    g_signal_connect(file_button, "file-set", G_CALLBACK(file_selected), NULL);
+    g_signal_connect(file_button, "file-set", G_CALLBACK(file_selected), widgets);
     gtk_box_pack_start(GTK_BOX(vbox), file_button, FALSE, FALSE, 0);
+
+    run_model_btn = gtk_button_new_with_label("Run Model");
+    gtk_box_pack_start(GTK_BOX(vbox), run_model_btn, FALSE, FALSE, 0);
+    g_signal_connect(run_model_btn, "clicked", G_CALLBACK(run_model), widgets);
 
     install_entry = gtk_entry_new();
     gtk_entry_set_placeholder_text(GTK_ENTRY(install_entry), "Packages to install/update (space separated)");
@@ -103,6 +121,7 @@ static void activate(GtkApplication* app, gpointer user_data) {
     widgets->install_entry = install_entry;
     widgets->remove_entry = remove_entry;
     widgets->output_view = output_view;
+    widgets->model_path = NULL;
 
     g_signal_connect(apply_btn, "clicked", G_CALLBACK(apply_actions), widgets);
 
