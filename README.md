@@ -1,26 +1,25 @@
-# Docker AI
+# Docker AI Tool
 
-This project provides a C/GTK GUI that runs inside Docker. The interface lets you select an AI model file and manage packages inside the container.
+This project provides a simple web interface for managing packages and running commands inside a Docker container. The UI is served by a small Flask application and lives in the `web/` folder.
 
-The window contains:
+The web page offers three actions:
 
-- **AI model chooser** – pick a model file from a mounted directory.
-- **Run Model** – executes the chosen model file and shows its output.
-- **Install/Update field** – enter package names to install or upgrade.
-- **Remove field** – enter package names to remove.
-- **Output area** – shows output from the package commands and model.
+- **Install packages** – runs `apt-get install` inside the container.
+- **Remove packages** – runs `apt-get remove` inside the container.
+- **Run command** – executes an arbitrary shell command and shows the output.
 
-When you press **Run Model** the selected file is executed as a script or binary. Press **Apply** to run `apt-get` with the package fields. All output is shown in the text area.
+All output from these operations is displayed in the browser.
 
-## Building and running
+## Building and Running
 
 1. Build the Docker image:
    ```sh
    docker build -t docker-ai .
    ```
-2. Run the container (mount a directory containing your AI model if needed):
+2. Run the container and expose the web interface:
    ```sh
-   docker run --rm -it -v /path/to/models:/models docker-ai
+   docker run --rm -p 5000:5000 docker-ai
    ```
+3. Open `http://localhost:5000` in your browser to access the tool.
 
-This launches the GUI inside the container. Use the fields to manage packages as needed.
+The container needs network access to install packages. Feel free to modify the Dockerfile to include additional dependencies or mount volumes if required.

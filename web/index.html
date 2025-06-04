@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Docker AI Tool</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 2em; }
+textarea { width: 100%; height: 200px; }
+</style>
+</head>
+<body>
+<h1>Docker AI Tool</h1>
+<form id="install-form">
+  <label>Packages to install:</label><br>
+  <input type="text" id="install" size="50"><br>
+  <button type="submit">Install</button>
+</form>
+<hr>
+<form id="remove-form">
+  <label>Packages to remove:</label><br>
+  <input type="text" id="remove" size="50"><br>
+  <button type="submit">Remove</button>
+</form>
+<hr>
+<form id="command-form">
+  <label>Command to run:</label><br>
+  <input type="text" id="command" size="50"><br>
+  <button type="submit">Run</button>
+</form>
+<h2>Output</h2>
+<textarea id="output" readonly></textarea>
+<script>
+async function postData(url, data) {
+  const resp = await fetch(url, {method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)});
+  const text = await resp.text();
+  document.getElementById('output').value += text + '\n';
+}
+
+document.getElementById('install-form').onsubmit = (e) => { e.preventDefault(); postData('/install', {packages: document.getElementById('install').value}); };
+document.getElementById('remove-form').onsubmit = (e) => { e.preventDefault(); postData('/remove', {packages: document.getElementById('remove').value}); };
+document.getElementById('command-form').onsubmit = (e) => { e.preventDefault(); postData('/run', {command: document.getElementById('command').value}); };
+</script>
+</body>
+</html>
