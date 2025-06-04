@@ -1,12 +1,15 @@
 # Docker AI
 
-This repository contains a minimal example of a C-based GUI application that
-runs inside Docker. The GUI is built using GTK 3 and displays three text areas
-for experimentation. It does not implement real AI features but serves as a
-starting point for integrating tools to install, update or manage packages
-inside a container. Users can upload an AI model through the interface; when a
-file is selected the application prints the path as a placeholder for running
-the model inside Docker.
+This project provides a C/GTK GUI that runs inside Docker. The interface lets you select an AI model file and manage packages inside the container.
+
+The window contains:
+
+- **AI model chooser** – pick a model file from a mounted directory. The selected path is printed to the logs.
+- **Install/Update field** – enter package names to install or upgrade.
+- **Remove field** – enter package names to remove.
+- **Output area** – shows output from the package commands.
+
+When you press **Apply** the program runs `apt-get` using the values you entered and prints the command output in the text area.
 
 ## Building and running
 
@@ -19,6 +22,4 @@ the model inside Docker.
    docker run --rm -it -v /path/to/models:/models docker-ai
    ```
 
-This will launch the GTK interface within the container. Use the “Select AI
-model” button to choose a model file from the mounted directory. The selected
-path is printed to the container logs.
+This launches the GUI inside the container. Use the fields to manage packages as needed.
