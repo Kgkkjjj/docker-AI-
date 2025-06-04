@@ -1,6 +1,7 @@
 from flask import Flask, request, send_from_directory
 import subprocess
 import os
+import openai
 
 app = Flask(__name__, static_folder='web')
 
@@ -35,6 +36,21 @@ def run_command():
         return 'No command provided', 400
     proc = subprocess.run(command, shell=True, capture_output=True, text=True)
     return proc.stdout + proc.stderr
+
+@app.route('/chat', methods=['POST'])
+def chat_model():
+    prompt = request.json.get('prompt', '')
+    if not prompt:
+        return 'No prompt provided', 400
+    openai.api_key = os.environ.get('OPENAI_API_KEY')
+    try:
+        response = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo',
+            messages=[{'role': 'user', 'content': prompt}]
+        )
+        return response['choices'][0]['message']['content']
+    except Exception as e:
+        return str(e), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

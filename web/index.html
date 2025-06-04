@@ -27,6 +27,12 @@ textarea { width: 100%; height: 200px; }
   <input type="text" id="command" size="50"><br>
   <button type="submit">Run</button>
 </form>
+<hr>
+<form id="chat-form">
+  <label>Ask the AI model:</label><br>
+  <input type="text" id="prompt" size="50"><br>
+  <button type="submit">Send</button>
+</form>
 <h2>Output</h2>
 <textarea id="output" readonly></textarea>
 <script>
@@ -39,6 +45,7 @@ async function postData(url, data) {
 document.getElementById('install-form').onsubmit = (e) => { e.preventDefault(); postData('/install', {packages: document.getElementById('install').value}); };
 document.getElementById('remove-form').onsubmit = (e) => { e.preventDefault(); postData('/remove', {packages: document.getElementById('remove').value}); };
 document.getElementById('command-form').onsubmit = (e) => { e.preventDefault(); postData('/run', {command: document.getElementById('command').value}); };
+document.getElementById('chat-form').onsubmit = (e) => { e.preventDefault(); postData('/chat', {prompt: document.getElementById('prompt').value}); };
 </script>
 </body>
 </html>
