@@ -53,10 +53,23 @@ The following scripts illustrate more advanced algorithms, all implemented from 
 - `rnn.py` – recurrent neural network that predicts sequence parity.
 - `conv_net.py` – small 1-D convolutional network with max pooling.
 - `autoencoder.py` – trains an autoencoder to reconstruct binary vectors.
-- `word_dataset_processor.py` – processes text data and computes TF-IDF vectors.
+- `word_dataset_processor.py` – flexible text processor with loaders for
+  `.txt`, `.csv`, `.json`, `.xml`, `.html`, and `.md` files. It includes
+  utilities like stopword removal, stemming, n-grams, and TF-IDF vectors.
 
 Each script can be executed individually, for example:
 
 ```bash
 python3 perceptron.py
+```
+
+## Example: Word Dataset Processor
+
+The processor script demonstrates the additional utilities described above. It
+builds a vocabulary from an in-memory dataset and prints TF‑IDF vectors.
+
+### Running
+
+```bash
+python3 word_dataset_processor.py | head -n 10
 ```

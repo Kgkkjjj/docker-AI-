@@ -1,13 +1,26 @@
 import math
+import csv
+import json
+import re
+import xml.etree.ElementTree as ET
 from typing import List
 
 class TextProcessor:
-    """Simple text processor that computes TF-IDF vectors."""
+    """Text processor with loaders and basic NLP utilities.
+
+    The processor can read datasets from six file formats and provides
+    several text analysis helpers including stopword removal, stemming,
+    n-gram generation and TF-IDF computation.
+    """
 
     def __init__(self):
         self.vocab: List[str] = []
         self.word_to_idx = {}
         self.idf = {}
+        self.stopwords = {
+            'the', 'a', 'and', 'or', 'to', 'of', 'in', 'on', 'is', 'are',
+            'for', 'with', 'an', 'as'
+        }
 
     def _tokenize(self, text: str) -> List[str]:
         """Lowercase and split text into alphabetic tokens."""
@@ -23,6 +36,76 @@ class TextProcessor:
         if word:
             tokens.append(word)
         return tokens
+
+    # ------------------------------------------------------------------
+    # Processing helpers (6 systems)
+
+    def remove_stopwords(self, tokens: List[str]) -> List[str]:
+        """Return tokens not in the stopword set."""
+        return [t for t in tokens if t not in self.stopwords]
+
+    def stem_tokens(self, tokens: List[str]) -> List[str]:
+        """Very small stemmer removing common suffixes."""
+        stems = []
+        for t in tokens:
+            for suf in ('ing', 'ed', 's'):
+                if t.endswith(suf) and len(t) > len(suf) + 2:
+                    t = t[:-len(suf)]
+                    break
+            stems.append(t)
+        return stems
+
+    def bigrams(self, tokens: List[str]) -> List[str]:
+        return ['{}_{}'.format(tokens[i], tokens[i+1])
+                for i in range(len(tokens)-1)]
+
+    def trigrams(self, tokens: List[str]) -> List[str]:
+        return ['{}_{}_{}'.format(tokens[i], tokens[i+1], tokens[i+2])
+                for i in range(len(tokens)-2)]
+
+    def term_frequency(self, tokens: List[str]):
+        counts = {}
+        for tok in tokens:
+            counts[tok] = counts.get(tok, 0) + 1
+        return counts
+
+    # ------------------------------------------------------------------
+    # Dataset loaders supporting six file types (6 systems)
+
+    def load_txt(self, path: str) -> List[str]:
+        with open(path, 'r', encoding='utf-8') as fh:
+            return [line.strip() for line in fh if line.strip()]
+
+    def load_csv(self, path: str, text_column: int = 0) -> List[str]:
+        rows = []
+        with open(path, newline='', encoding='utf-8') as fh:
+            reader = csv.reader(fh)
+            for row in reader:
+                if len(row) > text_column:
+                    rows.append(row[text_column])
+        return rows
+
+    def load_json(self, path: str, key: str = 'text') -> List[str]:
+        with open(path, 'r', encoding='utf-8') as fh:
+            data = json.load(fh)
+        return [item[key] for item in data if key in item]
+
+    def load_xml(self, path: str, tag: str = 'text') -> List[str]:
+        tree = ET.parse(path)
+        root = tree.getroot()
+        return [elem.text or '' for elem in root.iter(tag)]
+
+    def load_html(self, path: str) -> List[str]:
+        with open(path, 'r', encoding='utf-8') as fh:
+            text = fh.read()
+        text = re.sub('<[^<]+?>', ' ', text)
+        return [text.strip()]
+
+    def load_markdown(self, path: str) -> List[str]:
+        with open(path, 'r', encoding='utf-8') as fh:
+            text = fh.read()
+        text = re.sub(r'[#*>`]', ' ', text)
+        return [text.strip()]
 
     def fit(self, texts: List[str]):
         doc_counts = {}
