@@ -56,6 +56,8 @@ The following scripts illustrate more advanced algorithms, all implemented from 
 - `word_dataset_processor.py` – flexible text processor with loaders for
   `.txt`, `.csv`, `.json`, `.xml`, `.html`, and `.md` files. It includes
   utilities like stopword removal, stemming, n-grams, and TF-IDF vectors.
+- `layered_models.py` – demonstrates very deep networks with 20 layers for
+  text samples and 30 layers for numeric data.
 
 Each script can be executed individually, for example:
 
@@ -74,11 +76,23 @@ builds a vocabulary from an in-memory dataset and prints TF‑IDF vectors.
 python3 word_dataset_processor.py | head -n 10
 ```
 
+## Example: Layered Models
+
+The `layered_models.py` script builds extremely deep networks to demonstrate
+handling of text and numeric data. It runs a 20-layer model on short text
+samples and a 30-layer model on simple numeric input.
+
+### Running
+
+```bash
+python3 layered_models.py | head -n 10
+```
+
 ## Example: Auto System
 
 The `ai_model.py` script aggregates the algorithms and chooses one based on a task label.
 Supported labels include `classification`, `regression`, `clustering`, `nlp`,
-`reinforcement`, and `evolution`.
+`reinforcement`, `evolution`, `text20`, and `data30`.
 
 ### Running
 

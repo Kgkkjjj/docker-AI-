@@ -16,6 +16,7 @@ from autoencoder import Autoencoder
 from simple_nn import SimpleNeuralNetwork
 from complex_nn import DeepNeuralNetwork
 from word_dataset_processor import TextProcessor
+from layered_models import run_text_model, run_data_model
 
 class AutoSystem:
     """Select and run algorithms based on a simple task label."""
@@ -75,8 +76,12 @@ class AutoSystem:
             ga = GA(pop_size=20)
             best = ga.evolve(generations=200)
             print("Evolved:", ''.join(best.genes))
+        elif task == "text20":
+            run_text_model()
+        elif task == "data30":
+            run_data_model()
         else:
-            print("Unknown task. Available tasks: classification, regression, clustering, nlp, reinforcement, evolution")
+            print("Unknown task. Available tasks: classification, regression, clustering, nlp, reinforcement, evolution, text20, data30")
 
 if __name__ == "__main__":
     task = sys.argv[1] if len(sys.argv) > 1 else "classification"
