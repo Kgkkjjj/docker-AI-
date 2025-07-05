@@ -21,8 +21,31 @@ from layered_models import run_text_model, run_data_model
 class AutoSystem:
     """Select and run algorithms based on a simple task label."""
 
-    def __init__(self):
-        pass
+    def __init__(self, path: str | None = None):
+        self.path = path
+
+    def _load_csv(self, path: str):
+        import csv
+        data = []
+        with open(path, newline="", encoding="utf-8") as fh:
+            reader = csv.reader(fh)
+            for row in reader:
+                if not row:
+                    continue
+                data.append([float(x) for x in row])
+        X = [r[:-1] for r in data]
+        y = [int(r[-1]) for r in data]
+        return X, y
+
+    def _load_csv_folder(self, folder: str):
+        import os
+        all_X, all_y = [], []
+        for name in os.listdir(folder):
+            if name.endswith('.csv'):
+                X, y = self._load_csv(os.path.join(folder, name))
+                all_X.extend(X)
+                all_y.extend(y)
+        return all_X, all_y
 
     def run(self, task: str):
         task = task.lower()
@@ -51,11 +74,14 @@ class AutoSystem:
                 cluster = km.predict(x)
                 print(f"Point {x} => Cluster {cluster}")
         elif task == "nlp":
-            texts = [
-                "The quick brown fox jumps over the lazy dog",
-                "Never jump over the lazy dog quickly",
-            ]
             tp = TextProcessor()
+            if self.path:
+                texts = tp.load_path(self.path)
+            else:
+                texts = [
+                    "The quick brown fox jumps over the lazy dog",
+                    "Never jump over the lazy dog quickly",
+                ]
             vectors = tp.fit_transform(texts)
             print("Vocabulary:", tp.vocab)
             for t, v in zip(texts, vectors):
@@ -76,13 +102,30 @@ class AutoSystem:
             ga = GA(pop_size=20)
             best = ga.evolve(generations=200)
             print("Evolved:", ''.join(best.genes))
-        elif task == "text20":
+        elif task == "text30":
             run_text_model()
         elif task == "data30":
             run_data_model()
+        elif task == "train_csv" and self.path:
+            X, y = self._load_csv(self.path)
+            model = LogisticRegression(n_features=len(X[0]))
+            model.train(X, y, epochs=3000)
+            for x, label in zip(X, y):
+                pred = model.predict(x)
+                print(f"{x} label={label} => {pred}")
+        elif task == "train_folder" and self.path:
+            X, y = self._load_csv_folder(self.path)
+            model = LogisticRegression(n_features=len(X[0]))
+            model.train(X, y, epochs=3000)
+            correct = sum(model.predict(x) == y_i for x, y_i in zip(X, y))
+            acc = correct / len(y) * 100
+            print(f"Folder training accuracy: {acc:.1f}%")
         else:
-            print("Unknown task. Available tasks: classification, regression, clustering, nlp, reinforcement, evolution, text20, data30")
+            print(
+                "Unknown task. Available tasks: classification, regression, clustering, nlp, reinforcement, evolution, text30, data30, train_csv, train_folder"
+            )
 
 if __name__ == "__main__":
     task = sys.argv[1] if len(sys.argv) > 1 else "classification"
-    AutoSystem().run(task)
+    path = sys.argv[2] if len(sys.argv) > 2 else None
+    AutoSystem(path).run(task)

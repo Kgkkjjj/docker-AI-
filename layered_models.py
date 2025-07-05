@@ -4,7 +4,7 @@ from word_dataset_processor import TextProcessor
 
 
 def run_text_model():
-    """Train a 20-layer network on a tiny text dataset."""
+    """Train a 30-layer network on a tiny text dataset."""
     texts = [
         "Cats are wonderful pets",
         "Dogs are loyal animals",
@@ -15,8 +15,8 @@ def run_text_model():
     tp = TextProcessor()
     vectors = tp.fit_transform(texts)
     input_size = len(tp.vocab)
-    # input + 18 hidden + output = 20 layers total
-    layer_sizes = [input_size] + [8] * 18 + [1]
+    # input + 28 hidden + output = 30 layers total
+    layer_sizes = [input_size] + [8] * 28 + [1]
     net = DeepNeuralNetwork(layer_sizes)
     net.train(vectors, labels, epochs=200, lr=0.05)
     for t, v in zip(texts, vectors):

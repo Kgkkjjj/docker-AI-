@@ -3,6 +3,7 @@ import csv
 import json
 import re
 import xml.etree.ElementTree as ET
+import os
 from typing import List
 
 class TextProcessor:
@@ -106,6 +107,34 @@ class TextProcessor:
             text = fh.read()
         text = re.sub(r'[#*>`]', ' ', text)
         return [text.strip()]
+
+    def load_path(self, path: str) -> List[str]:
+        """Load all supported files from a single file or directory."""
+        paths = []
+        if os.path.isdir(path):
+            for root, _, files in os.walk(path):
+                for name in files:
+                    ext = os.path.splitext(name)[1].lower()
+                    if ext in {'.txt', '.csv', '.json', '.xml', '.html', '.md'}:
+                        paths.append(os.path.join(root, name))
+        else:
+            paths.append(path)
+        texts = []
+        for p in paths:
+            ext = os.path.splitext(p)[1].lower()
+            if ext == '.txt':
+                texts.extend(self.load_txt(p))
+            elif ext == '.csv':
+                texts.extend(self.load_csv(p))
+            elif ext == '.json':
+                texts.extend(self.load_json(p))
+            elif ext == '.xml':
+                texts.extend(self.load_xml(p))
+            elif ext == '.html':
+                texts.extend(self.load_html(p))
+            elif ext == '.md':
+                texts.extend(self.load_markdown(p))
+        return texts
 
     def fit(self, texts: List[str]):
         doc_counts = {}

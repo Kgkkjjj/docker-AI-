@@ -68,7 +68,8 @@ python3 perceptron.py
 ## Example: Word Dataset Processor
 
 The processor script demonstrates the additional utilities described above. It
-builds a vocabulary from an in-memory dataset and prints TF‑IDF vectors.
+can load individual files or entire directories of `.txt`, `.csv`, `.json`, `.xml`,
+`.html`, and `.md` data, build a vocabulary, and print TF‑IDF vectors.
 
 ### Running
 
@@ -79,7 +80,7 @@ python3 word_dataset_processor.py | head -n 10
 ## Example: Layered Models
 
 The `layered_models.py` script builds extremely deep networks to demonstrate
-handling of text and numeric data. It runs a 20-layer model on short text
+handling of text and numeric data. It now runs a 30-layer model on short text
 samples and a 30-layer model on simple numeric input.
 
 ### Running
@@ -92,10 +93,30 @@ python3 layered_models.py | head -n 10
 
 The `ai_model.py` script aggregates the algorithms and chooses one based on a task label.
 Supported labels include `classification`, `regression`, `clustering`, `nlp`,
-`reinforcement`, `evolution`, `text20`, and `data30`.
+`reinforcement`, `evolution`, `text30`, `data30`, `train_csv`, and
+`train_folder`. The `nlp` task can optionally accept a file or directory
+path to process.
 
 ### Running
 
 ```bash
 python3 ai_model.py classification
+```
+
+To process text from a directory and compute TF‑IDF vectors:
+
+```bash
+python3 ai_model.py nlp my_texts/
+```
+
+To train logistic regression on a CSV file with the label in the last column:
+
+```bash
+python3 ai_model.py train_csv data.csv
+```
+
+To run the extremely deep text model:
+
+```bash
+python3 ai_model.py text30
 ```
